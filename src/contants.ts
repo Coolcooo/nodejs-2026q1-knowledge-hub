@@ -1,0 +1,19 @@
+export const Role = {
+  ADMIN: 'admin',
+  EDITOR: 'editor',
+  VIEWER: 'viewer',
+} as const;
+export const Roles = Object.values(Role);
+
+export const ArticleStatus = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  ARCHIVED: 'archived',
+} as const;
+export const ArticleStatuses = Object.values(ArticleStatus);
+
+export const HTTP_CODE_MESSAGES = {
+  ID_NOT_FOUND: "id === userId doesn't exist",
+  PASSWORD_IS_WRONG: 'old password is wrong',
+  ARTICLE_IS_NOT_FOUND: 'old password is wrong',
+} as const;
