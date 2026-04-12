@@ -1,0 +1,49 @@
+services:
+  app:
+    image: somvolodya/knowledge-app-hub
+    build: ./
+    depends_on:
+      db:
+          condition: service_healthy
+    environment:
+      - PORT=${PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${PORT}/ || exit 1"]
+    restart: on-failure
+    networks:
+      front-tier:
+
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - data-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+    restart: unless-stopped
+    networks:
+      db-tier:
+      front-tier:
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      db-tier:
+    profiles: [debug]
+
+volumes:
+  data-volume:
+
+networks:
+  db-tier:
+  front-tier:

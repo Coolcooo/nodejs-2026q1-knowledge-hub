@@ -1,5 +1,9 @@
 # Knowledge Hub
 
+## Docker image
+
+- Image - [URL](https://hub.docker.com/r/somvolodya/knowledge-app-hub)
+
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
