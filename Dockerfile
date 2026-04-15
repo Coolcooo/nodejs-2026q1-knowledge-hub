@@ -14,5 +14,5 @@ EXPOSE ${PORT}
 COPY ./package.json ./package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=builder-stage usr/local/app/dist ./
-CMD ["node", "./main.js"]
+CMD ["node", "./src/main.js"]
 USER node
