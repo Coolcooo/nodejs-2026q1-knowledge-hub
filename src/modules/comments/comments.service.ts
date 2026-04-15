@@ -1,6 +1,4 @@
 import {
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -8,59 +6,43 @@ import {
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from './entity/comment.entity';
 import { HTTP_CODE_MESSAGES } from '../../contants';
-import { ArticlesService } from '../articles/articles.service';
+import { PrismaService } from '../../external/prisma.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CommentsService {
-  comments: Comment[] = [];
-  constructor(
-    @Inject(forwardRef(() => ArticlesService))
-    private readonly articleService: ArticlesService,
-  ) {}
-  getByArticleId(articleId: string) {
-    return this.comments.filter((comment) => comment.articleId === articleId);
+  constructor(private readonly prisma: PrismaService) {}
+  async getByArticleId(articleId: string) {
+    const comments = await this.prisma.comment.findMany({
+      where: { articleId },
+    });
+    return comments.map((e) => plainToInstance(Comment, e));
   }
-  findOne(id: string) {
-    for (let i = this.comments.length - 1; i >= 0; i -= 1) {
-      if (this.comments[i].id === id) {
-        return this.comments[i];
-      }
+  async findOne(id: string) {
+    const comment = await this.prisma.comment.findUnique({ where: { id } });
+    if (!comment) {
+      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+    return plainToInstance(Comment, comment);
   }
-  create(createCommentDto: CreateCommentDto) {
+  async create(createCommentDto: CreateCommentDto) {
     try {
-      this.articleService.findOne(createCommentDto.articleId);
+      const comment = new Comment(createCommentDto);
+      await this.prisma.comment.create({
+        data: comment,
+      });
+      return comment;
     } catch (e) {
       throw new UnprocessableEntityException(
         HTTP_CODE_MESSAGES.ARTICLE_IS_NOT_FOUND,
       );
     }
-    const comment = new Comment(createCommentDto);
-    this.comments.push(comment);
-    return comment;
   }
-  delete(id: string) {
-    for (let i = this.comments.length - 1; i >= 0; i -= 1) {
-      if (this.comments[i].id === id) {
-        this.comments.splice(i, 1);
-        return;
-      }
-    }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
-  }
-  unlinkByArticleId(articleId: string) {
-    for (let i = this.comments.length - 1; i >= 0; i -= 1) {
-      if (this.comments[i].articleId === articleId) {
-        this.comments.splice(i, 1);
-      }
-    }
-  }
-  unlinkByUserId(authorId: string) {
-    for (let i = this.comments.length - 1; i >= 0; i -= 1) {
-      if (this.comments[i].authorId === authorId) {
-        this.comments.splice(i, 1);
-      }
+  async delete(id: string) {
+    try {
+      await this.prisma.comment.delete({ where: { id } });
+    } catch (e) {
+      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
   }
 }

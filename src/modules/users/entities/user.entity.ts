@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { randomUUID } from 'node:crypto';
 
@@ -8,8 +8,10 @@ export class User {
   @Exclude()
   password: string;
   role: 'admin' | 'editor' | 'viewer';
-  createdAt: number = +new Date(); // timestamp of creation
-  updatedAt: number = +new Date(); // timestamp of last update
+  @Transform(({ value }) => +value)
+  createdAt: Date = new Date(); // timestamp of creation
+  @Transform(({ value }) => +value)
+  updatedAt: Date = new Date(); // timestamp of last update
   constructor(createUserDto: CreateUserDto) {
     Object.assign(this, createUserDto);
   }

@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,13 +10,18 @@ import {
   Post,
   Put,
   Query,
+  SerializeOptions,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { StatusCodes } from 'http-status-codes';
 import { GetArticleDto } from './dto/get-article.dto';
+import { Article } from './entities/article.entity';
 
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ type: Article })
 @Controller('article')
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
@@ -36,11 +42,13 @@ export class ArticlesController {
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
-    return this.articlesService.update(id, updateArticleDto);
+    const res = await this.articlesService.update(id, updateArticleDto);
+    console.log(res);
+    return res;
   }
 
   @Delete(':id')

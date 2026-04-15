@@ -1,14 +1,13 @@
-import { IsIn, IsString, IsUUID, ValidateIf } from 'class-validator';
-import { TArcticleStatus } from '../../../types';
-import { ArticleStatuses } from '../../../contants';
+import { IsEnum, IsString, IsUUID, ValidateIf } from 'class-validator';
+import { Status } from '../../../generated/prisma/enums';
 
 export class CreateArticleDto {
   @IsString()
   readonly title: string;
   @IsString()
   readonly content: string;
-  @IsIn(ArticleStatuses)
-  readonly status: TArcticleStatus;
+  @IsEnum(Status)
+  readonly status: Status;
   @IsString({ each: true })
   readonly tags: string[];
   @IsUUID(4)

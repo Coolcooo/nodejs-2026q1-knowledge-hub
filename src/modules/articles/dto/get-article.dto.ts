@@ -1,10 +1,10 @@
-import { IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
-import { ArticleStatuses } from '../../../contants';
+import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { Status } from '../../../generated/prisma/enums';
 
 export class GetArticleDto {
-  @IsIn(ArticleStatuses)
+  @IsEnum(Status)
   @IsOptional()
-  readonly status?: string;
+  readonly status?: Status;
   @IsUUID(4)
   @IsOptional()
   readonly categoryId?: string;
