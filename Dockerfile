@@ -6,6 +6,7 @@ RUN npm install
 
 COPY . .
 
+RUN npx prisma generate
 RUN npm run build
 
 FROM node:24-alpine AS final-stage
