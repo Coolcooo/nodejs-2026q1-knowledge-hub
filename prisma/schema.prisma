@@ -31,6 +31,8 @@ model Article {
   categoryId String?
   comments   Comment[]
   tags Tag[]
+  @@index([status])
+  @@index([categoryId])
 }
 
 model Category {
