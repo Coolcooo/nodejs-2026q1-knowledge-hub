@@ -7,61 +7,54 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { HTTP_CODE_MESSAGES } from 'src/contants';
-import { ArticlesService } from '../articles/articles.service';
-import { CommentsService } from '../comments/comments.service';
+import { PrismaService } from '../../external/prisma.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
-  users: User[] = [];
-  constructor(
-    private readonly articlesService: ArticlesService,
-    private readonly commentsService: CommentsService,
-  ) {}
-  create(createUserDto: CreateUserDto) {
+  constructor(private readonly prisma: PrismaService) {}
+  async create(createUserDto: CreateUserDto) {
     const user = new User(createUserDto);
-    this.users.push(user);
+    await this.prisma.user.create({
+      data: user,
+    });
     return user;
   }
 
-  findAll() {
-    return this.users;
+  async findAll() {
+    const users = await this.prisma.user.findMany();
+    return users.map((e) => plainToInstance(User, e));
   }
 
-  findOne(id: string) {
-    for (let i = 0; i < this.users.length; i += 1) {
-      if (this.users[i].id === id) {
-        return this.users[i];
-      }
+  async findOne(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+    return plainToInstance(User, user);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    for (let i = 0; i < this.users.length; i += 1) {
-      const user = this.users[i];
-      if (user.id === id) {
-        if (user.password === updateUserDto.oldPassword) {
-          user.password = updateUserDto.newPassword;
-          user.updatedAt = +new Date();
-        } else {
-          throw new ForbiddenException(HTTP_CODE_MESSAGES.PASSWORD_IS_WRONG);
-        }
-        return;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { id } });
+      if (!user) {
+        throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
       }
-    }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      if (user.password !== updateUserDto.oldPassword) {
+        throw new ForbiddenException(HTTP_CODE_MESSAGES.PASSWORD_IS_WRONG);
+      }
+      user.password = updateUserDto.newPassword;
+      user.updatedAt = new Date();
+      await tx.user.update({ where: { id }, data: user });
+      return plainToInstance(User, user);
+    });
   }
 
-  remove(id: string) {
-    for (let i = this.users.length - 1; i >= 0; i -= 1) {
-      const user = this.users[i];
-      if (user.id === id) {
-        this.articlesService.unlinkByUserId(id);
-        this.commentsService.unlinkByUserId(id);
-        this.users.splice(i, 1);
-        return;
-      }
+  async remove(id: string) {
+    try {
+      await this.prisma.user.delete({ where: { id } });
+    } catch (e) {
+      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
   }
 }

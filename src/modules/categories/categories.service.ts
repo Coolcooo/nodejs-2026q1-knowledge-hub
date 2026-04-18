@@ -3,48 +3,46 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
 import { HTTP_CODE_MESSAGES } from '../../contants';
-import { ArticlesService } from '../articles/articles.service';
+import { PrismaService } from '../../external/prisma.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CategoriesService {
-  categories: Category[] = [];
-  constructor(private readonly articlesService: ArticlesService) {}
-  findAll() {
-    return this.categories;
+  constructor(private readonly prisma: PrismaService) {}
+  async findAll() {
+    const categories = await this.prisma.category.findMany();
+    return categories.map((e) => plainToInstance(Category, e));
   }
-  findOne(id: string) {
-    for (let i = this.categories.length - 1; i >= 0; i -= 1) {
-      const category = this.categories[i];
-      if (category.id === id) {
-        return category;
-      }
+  async findOne(id: string) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
+    if (!category) {
+      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+    return plainToInstance(Category, category);
   }
-  create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto) {
     const category = new Category(createCategoryDto);
-    this.categories.push(category);
+    await this.prisma.category.create({
+      data: category,
+    });
     return category;
   }
-  update(id: string, updateCategoryDto: UpdateCategoryDto) {
-    for (let i = this.categories.length - 1; i >= 0; i -= 1) {
-      const category = this.categories[i];
-      if (category.id === id) {
-        Object.assign(category, updateCategoryDto);
-        return category;
-      }
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    try {
+      const updatedCategory = await this.prisma.category.update({
+        where: { id },
+        data: updateCategoryDto,
+      });
+      return plainToInstance(Category, updatedCategory);
+    } catch (e) {
+      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
   }
-  delete(id: string) {
-    for (let i = this.categories.length - 1; i >= 0; i -= 1) {
-      const category = this.categories[i];
-      if (category.id === id) {
-        this.categories.splice(i, 1);
-        this.articlesService.unlinkByCategoryId(id);
-        return;
-      }
+  async delete(id: string) {
+    try {
+      await this.prisma.category.delete({ where: { id } });
+    } catch (e) {
+      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
-    throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
   }
 }

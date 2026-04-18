@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,11 +9,16 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  SerializeOptions,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentsService } from './comments.service';
 import { StatusCodes } from 'http-status-codes';
+import { Comment } from './entity/comment.entity';
 
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ type: Comment })
 @Controller('comment')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
