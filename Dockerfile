@@ -14,7 +14,8 @@ ENV NODE_ENV=production
 EXPOSE ${PORT}
 COPY ./package.json ./package-lock.json ./
 RUN npm ci --omit=dev
+COPY --from=builder-stage usr/local/app/prisma.config.ts .
 COPY --from=builder-stage usr/local/app/dist ./dist
 COPY --from=builder-stage usr/local/app/prisma ./prisma
-CMD ["node", "./dist/src/main.js"]
+CMD ["npm", "run", "start:prod"]
 USER node
