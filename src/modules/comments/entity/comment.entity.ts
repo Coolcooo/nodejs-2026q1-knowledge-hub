@@ -7,8 +7,8 @@ export class Comment {
   content: string;
   articleId: string; // refers to Article
   authorId: string | null; // refers to User
-  @Transform(({ value }) => +value)
-  createdAt: Date = new Date(); // timestamp of creation
+  @Transform(({ value }) => +value, { toPlainOnly: true })
+  createdAt: Date; // timestamp of creation
   constructor(createCommentsDto: CreateCommentDto) {
     Object.assign(this, createCommentsDto);
   }

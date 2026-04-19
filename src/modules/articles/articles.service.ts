@@ -67,8 +67,6 @@ export class ArticlesService {
     const createObj: ArticleUncheckedCreateInput = {
       ...createArticleDto,
       id: randomUUID(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
       tags: {
         connectOrCreate: createArticleDto.tags.map((tag) => {
           return {

@@ -14,11 +14,11 @@ export class Article {
   @Transform(({ value }) => {
     return +value;
   })
-  createdAt: Date = new Date(); // timestamp of creation
+  createdAt: Date; // timestamp of creation
   @Transform(({ value }) => {
     return +value;
   })
-  updatedAt: Date = new Date(); // timestamp of last update
+  updatedAt: Date; // timestamp of last update
   constructor(createArticleDto: CreateArticleDto) {
     Object.assign(this, createArticleDto);
   }
