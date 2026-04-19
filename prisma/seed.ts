@@ -16,8 +16,6 @@ async function main() {
       login: 'testuser1',
       password: 'secret1',
       role: Role.admin,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
     where: { id: adminId },
     update: {},
@@ -77,8 +75,6 @@ async function main() {
       title: 'article1',
       content: 'articleContent1',
       status: Status.published,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       authorId: editorId,
       categoryId: itCategoryId,
       tags: {
@@ -109,8 +105,6 @@ async function main() {
       title: 'artifsdcle1',
       content: 'articlsdafeContent1',
       status: Status.draft,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       authorId: editorId,
       categoryId: itCategoryId,
       tags: {
@@ -141,8 +135,6 @@ async function main() {
       title: 'articlfasde1',
       content: 'articleContbvcent1',
       status: Status.draft,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       authorId: editorId,
       categoryId: managementCategoryId,
       tags: {
@@ -173,8 +165,6 @@ async function main() {
       title: 'articlfe1',
       content: 'artntbvcent1',
       status: Status.archived,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       authorId: editorId,
       categoryId: learnCategoryId,
       tags: {
@@ -205,8 +195,6 @@ async function main() {
       title: 'articlfe1',
       content: 'artntbvcent1',
       status: Status.draft,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       authorId: editorId,
       categoryId: learnCategoryId,
       tags: {
@@ -235,7 +223,6 @@ async function main() {
     create: {
       id: id,
       content: 'artntbvcent1',
-      createdAt: new Date(),
       authorId: editorId,
       articleId: test2ArticleId,
     },
@@ -248,7 +235,6 @@ async function main() {
     create: {
       id: id,
       content: 'artntbvcent2',
-      createdAt: new Date(),
       authorId: editorId,
       articleId: test2ArticleId,
     },
@@ -261,7 +247,6 @@ async function main() {
     create: {
       id: id,
       content: 'artntbvcfasdf asdf asf fsafent2',
-      createdAt: new Date(),
       authorId: editorId,
       articleId: test2ArticleId,
     },
@@ -274,7 +259,6 @@ async function main() {
     create: {
       id: id,
       content: 'artntbvcent1',
-      createdAt: new Date(),
       authorId: editorId,
       articleId: itArticleId,
     },
@@ -287,7 +271,6 @@ async function main() {
     create: {
       id: id,
       content: 'artntbvcent2',
-      createdAt: new Date(),
       authorId: editorId,
       articleId: itArticleId,
     },
@@ -300,7 +283,6 @@ async function main() {
     create: {
       id: id,
       content: 'artntbvcfasdf asdf asf fsafent2',
-      createdAt: new Date(),
       authorId: editorId,
       articleId: itArticleId,
     },

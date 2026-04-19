@@ -8,12 +8,13 @@ const createUserDto = {
 
 const getTokenAndUserId = async (request) => {
   // create user (signup always yields a viewer per spec)
-  const {
-    body: { id: mockUserId },
-  } = await request
+  const res = await request
     .post(authRoutes.signup)
     .set('Accept', 'application/json')
     .send(createUserDto);
+  const {
+    body: { id: mockUserId },
+  } = res;
 
   if (mockUserId === undefined) {
     throw new Error('Authorization is not implemented');

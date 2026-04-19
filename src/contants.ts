@@ -14,6 +14,17 @@ export const ArticleStatuses = Object.values(ArticleStatus);
 
 export const HTTP_CODE_MESSAGES = {
   ID_NOT_FOUND: "id === userId doesn't exist",
+  LOGIN_IS_EXIST: 'login is exist',
   PASSWORD_IS_WRONG: 'old password is wrong',
-  ARTICLE_IS_NOT_FOUND: 'old password is wrong',
+  ARTICLE_IS_NOT_FOUND: 'article is not found',
+  AUTH_IS_WRONG: 'login/password is wrong',
+  ROLE_IS_INVALID: 'role is invalid',
+} as const;
+
+export const Action = {
+  Manage: 'manage',
+  Create: 'create',
+  Read: 'read',
+  Update: 'update',
+  Delete: 'delete',
 } as const;

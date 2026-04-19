@@ -27,11 +27,10 @@ export class CommentsService {
   }
   async create(createCommentDto: CreateCommentDto) {
     try {
-      const comment = new Comment(createCommentDto);
-      await this.prisma.comment.create({
-        data: comment,
+      const comment = await this.prisma.comment.create({
+        data: new Comment(createCommentDto),
       });
-      return comment;
+      return plainToInstance(Comment, comment);
     } catch (e) {
       throw new UnprocessableEntityException(
         HTTP_CODE_MESSAGES.ARTICLE_IS_NOT_FOUND,
