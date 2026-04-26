@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   SerializeOptions,
-  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,6 +16,7 @@ import { RefreshDto } from './dto/refresh.dto';
 import { SkipAuth } from './auth.metadata';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { User } from '../users/entities/user.entity';
+import { UnauthorizedError } from '../../filters/errors/http.error';
 
 @UseGuards(ThrottlerGuard)
 @SkipAuth()
@@ -45,7 +45,7 @@ export class AuthController {
     data: RefreshDto,
   ) {
     if (typeof data.refreshToken !== 'string') {
-      throw new UnauthorizedException();
+      throw new UnauthorizedError();
     }
     return this.authService.refresh(data);
   }

@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
 import { HTTP_CODE_MESSAGES } from '../../contants';
 import { PrismaService } from '../../external/prisma.service';
 import { plainToInstance } from 'class-transformer';
+import { NotFoundError } from '../../filters/errors/http.error';
 
 @Injectable()
 export class CategoriesService {
@@ -16,7 +17,7 @@ export class CategoriesService {
   async findOne(id: string) {
     const category = await this.prisma.category.findUnique({ where: { id } });
     if (!category) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
     return plainToInstance(Category, category);
   }
@@ -35,14 +36,14 @@ export class CategoriesService {
       });
       return plainToInstance(Category, updatedCategory);
     } catch (e) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
   }
   async delete(id: string) {
     try {
       await this.prisma.category.delete({ where: { id } });
     } catch (e) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
   }
 }

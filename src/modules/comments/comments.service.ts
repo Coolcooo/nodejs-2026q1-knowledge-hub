@@ -1,13 +1,15 @@
 import {
   Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from './entity/comment.entity';
 import { HTTP_CODE_MESSAGES } from '../../contants';
 import { PrismaService } from '../../external/prisma.service';
 import { plainToInstance } from 'class-transformer';
+import {
+  NotFoundError,
+  UnprocessableEntityError,
+} from '../../filters/errors/http.error';
 
 @Injectable()
 export class CommentsService {
@@ -21,7 +23,7 @@ export class CommentsService {
   async findOne(id: string) {
     const comment = await this.prisma.comment.findUnique({ where: { id } });
     if (!comment) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
     return plainToInstance(Comment, comment);
   }
@@ -32,7 +34,7 @@ export class CommentsService {
       });
       return plainToInstance(Comment, comment);
     } catch (e) {
-      throw new UnprocessableEntityException(
+      throw new UnprocessableEntityError(
         HTTP_CODE_MESSAGES.ARTICLE_IS_NOT_FOUND,
       );
     }
@@ -41,7 +43,7 @@ export class CommentsService {
     try {
       await this.prisma.comment.delete({ where: { id } });
     } catch (e) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
   }
 }

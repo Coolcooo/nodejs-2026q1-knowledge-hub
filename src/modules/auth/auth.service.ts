@@ -1,8 +1,5 @@
 import {
-  BadRequestException,
-  ForbiddenException,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/signup.dto';
@@ -15,6 +12,11 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../external/prisma.service';
 import { User } from '../users/entities/user.entity';
 import { Prisma } from '../../generated/prisma/client';
+import {
+  ForbiddenError,
+  UnauthorizedError,
+  ValidationError,
+} from '../../filters/errors/http.error';
 
 @Injectable()
 export class AuthService {
@@ -27,11 +29,11 @@ export class AuthService {
     return this.prisma.$transaction(async (tx) => {
       const user = await this.usersService.findByLogin(loginDto.login, tx);
       if (!user) {
-        throw new UnauthorizedException(HTTP_CODE_MESSAGES.AUTH_IS_WRONG);
+        throw new UnauthorizedError(HTTP_CODE_MESSAGES.AUTH_IS_WRONG);
       }
       const isEqualPasswords = await compare(loginDto.password, user.password);
       if (!isEqualPasswords) {
-        throw new UnauthorizedException(HTTP_CODE_MESSAGES.AUTH_IS_WRONG);
+        throw new UnauthorizedError(HTTP_CODE_MESSAGES.AUTH_IS_WRONG);
       }
       return this.generateTokens(user, tx);
     });
@@ -48,7 +50,7 @@ export class AuthService {
       const createdUser = await this.usersService.create(userDto);
       return createdUser;
     } catch (e) {
-      throw new BadRequestException(HTTP_CODE_MESSAGES.LOGIN_IS_EXIST);
+      throw new ValidationError(HTTP_CODE_MESSAGES.LOGIN_IS_EXIST);
     }
   }
 
@@ -59,7 +61,7 @@ export class AuthService {
         secret: process.env.JWT_SECRET_REFRESH_KEY,
       });
     } catch (e) {
-      throw new ForbiddenException();
+      throw new ForbiddenError();
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -70,7 +72,7 @@ export class AuthService {
           },
         });
       } catch (e) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedError();
       }
 
       const user = await this.usersService.findOne(payload.userId, tx);

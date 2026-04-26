@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException, } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -6,6 +6,7 @@ import { HTTP_CODE_MESSAGES } from 'src/contants';
 import { PrismaService } from '../../external/prisma.service';
 import { plainToInstance } from 'class-transformer';
 import { Prisma } from '../../generated/prisma/client';
+import { ForbiddenError, NotFoundError } from '../../filters/errors/http.error';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +28,7 @@ export class UsersService {
   async findOne(id: string, prisma: Prisma.TransactionClient = this.prisma) {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
 
     return plainToInstance(User, user);
@@ -48,7 +49,7 @@ export class UsersService {
     return this.prisma.$transaction(async (tx) => {
       const user = await this.findOne(id, tx);
       if (user.password !== updateUserDto.oldPassword) {
-        throw new ForbiddenException(HTTP_CODE_MESSAGES.PASSWORD_IS_WRONG);
+        throw new ForbiddenError(HTTP_CODE_MESSAGES.PASSWORD_IS_WRONG);
       }
       user.password = updateUserDto.newPassword;
       user.updatedAt = new Date();
@@ -61,7 +62,7 @@ export class UsersService {
     try {
       await this.prisma.user.delete({ where: { id } });
     } catch (e) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
   }
 }

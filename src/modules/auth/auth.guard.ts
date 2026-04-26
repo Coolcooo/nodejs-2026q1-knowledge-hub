@@ -2,12 +2,12 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { IS_SKIP_AUTH } from './auth.metadata';
+import { UnauthorizedError } from '../../filters/errors/http.error';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -26,14 +26,14 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedError();
     }
     try {
       request['user'] = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET_KEY,
       });
     } catch (e) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedError();
     }
     return true;
   }
