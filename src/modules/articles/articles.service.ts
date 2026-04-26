@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';
@@ -12,6 +12,7 @@ import {
   ArticleWhereInput,
 } from '../../generated/prisma/models/Article';
 import { randomUUID } from 'node:crypto';
+import { NotFoundError } from '../../filters/errors/http.error';
 
 const plainToArticle = (
   updated: ArticleGetPayload<{ include: { tags: true } }>,
@@ -58,7 +59,7 @@ export class ArticlesService {
       include: { tags: true },
     });
     if (!article) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
     return plainToArticle(article);
   }
@@ -115,7 +116,7 @@ export class ArticlesService {
       });
       return plainToArticle(updatedArticle);
     } catch (e) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
   }
 
@@ -123,7 +124,7 @@ export class ArticlesService {
     try {
       await this.prisma.article.delete({ where: { id } });
     } catch (e) {
-      throw new NotFoundException(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
+      throw new NotFoundError(HTTP_CODE_MESSAGES.ID_NOT_FOUND);
     }
   }
 }
